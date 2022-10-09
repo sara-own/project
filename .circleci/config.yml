@@ -10,6 +10,7 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" 
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws s3 rm s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --recursive
           when: on_fail 
           
   revert-migrations:
@@ -72,7 +73,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-test]
+          keys: [frontend-build]
       - run:
           name: run frontend test
           command: |
@@ -89,7 +90,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-test]
+          keys: [backend-build]
       - run:
           name: run backend test
           command: |
@@ -106,7 +107,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-scan]
+          keys: [frontend-test]
       - run:
           name: run front audit
           command: |
@@ -124,7 +125,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-scan]
+          keys: [backend-test]
       - run:
           name: run backend audit
           command: |
@@ -143,6 +144,14 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: |            
+                    yum -y install sudo
+                    yum -y install tar
+                    yum -y install gzip
+                    yum install -y curl
+                    yum -y update upgrade
+      - run:
           name: create back-end infrastructure 
           command: |
             aws cloudformation deploy \
@@ -155,16 +164,18 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=your-tag \
+              --tags project=udapeople \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
       - run:
           name: Add back-end publicIP created to ansible inventory
           command: | 
              cd .circleci/ansible
-             echo "" >> inventory.txt
-             echo "$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:       --output text)" >> inventory.txt
-             cat inventory.txt
+              aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text >> inventory.txt
+              cat inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -183,16 +194,22 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
-            apk add --update tar
-            apk add --update gzip
-            pip3 install awscli
+             apk add --update ansible 
+             apk add --update tar                        
+             apk add --update gzip 
+             apk add --update nodejs
+             apk add --update npm 
+             apk add --update curl
+             pip3 install --upgrade pip 
+             pip install awscli 
       - run:
           name: Configure server using playbook
           command: |
             cd .circleci/ansible
+            cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
+      - revert_migration
       
       
   run-migrations:
