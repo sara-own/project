@@ -130,7 +130,7 @@ jobs:
               --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - run: aws configure        
+              
       - run:
           name: create front-end infrastructure 
           command: |
