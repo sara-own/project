@@ -30,16 +30,18 @@ commands:
         command: |
             # Your Memstash or kvdb.io GET URL code goes here
             # Example: Memstash.io
-            SUCCESS=$(curl -H "token:migration_${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
-            # Example: kvdb.io
-            #SUCCESS=$(curl --insecure  https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_<< parameters.workflow_id >>)
-            # Logic for reverting the database state
+            SUCCESS=$(curl -H "token:${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_successful)
+            echo $SUCCESS
             if (( $SUCCESS == 1 ));
             then
                 cd ~/project/backend
                 npm install
-                npm run migration:revert
+                npm run migrations
             fi 
+            # Example: kvdb.io
+            #SUCCESS=$(curl --insecure  https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_<< parameters.workflow_id >>)
+            # Logic for reverting the database state
+            
 jobs:
   build-frontend:
     docker:
