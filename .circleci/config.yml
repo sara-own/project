@@ -130,15 +130,18 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
               
       - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            # Your code here
-            exit 1
+          name: Add back-end publicIP created to ansible inventory
+          command: | 
+             cd .circleci/ansible
+             echo "" >> inventory.txt
+             echo "$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:
+             cat inventory.txt
+          
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure             
+      - destroy_environment             
 workflows:
   default:
     jobs:
