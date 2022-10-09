@@ -2,36 +2,44 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@2.0.3
 commands:
-  destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    steps:
-      - run:
+    destroy-environment:
+     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
+     parameters:
+        workflow_id:
+         type: string      
+     steps:
+        - run:
           name: Destroy environments
+          when: on_fail
           command: |
+            echo "Destroying environment: << parameters.workflow_id >> "
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" 
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws s3 rm s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-          when: on_fail 
+        
           
-  revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      # Add parameter here     
-    steps:
-      - run:
-          name: Revert migrations
-          when: on_fail # Add when this will run
-          command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-             curl -H "Content-Type: text/plain" -H "token:migration_${CIRCLE_WORKFLOW_ID:0:7}" --request GET  https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
-             SUCCESS = 1
-             if(( $SUCCESS==1 )); 
-             then
-              cd backend
-              npm install
-              npm run migrations:revert
-            
-            fi
+   revert-migrations:
+   description: Revert the last migration
+   parameters:
+     workflow_id:
+        type: string      
+   steps:
+    - run:
+        name: Revert migrations
+        when: on_fail
+        command: |
+            # Your Memstash or kvdb.io GET URL code goes here
+            # Example: Memstash.io
+            SUCCESS=$(curl -H "token:migration_${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
+            # Example: kvdb.io
+            #SUCCESS=$(curl --insecure  https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_<< parameters.workflow_id >>)
+            # Logic for reverting the database state
+            if (( $SUCCESS == 1 ));
+            then
+                cd ~/project/backend
+                npm install
+                npm run migration:revert
+            fi 
 jobs:
   build-frontend:
     docker:
@@ -209,7 +217,7 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
-      - revert_migration
+      - revert-migrations
       
       
   run-migrations:
@@ -236,7 +244,7 @@ jobs:
               # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
               # curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'             
       - destroy-environment
-      - revert_migration
+      - revert-migrations
     
   deploy-frontend:
     docker:
@@ -287,7 +295,7 @@ jobs:
           paths:
             - project/frontend         
       - destroy-environment
-      - revert_migration
+      - revert-migrations
                     
   deploy-backend:
     docker:
@@ -330,23 +338,184 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
-      - migration_revert
+      - revert-migrations
      
      
+  smoke-test:
+    docker:
+      image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar
+            apk add --update gzip
+            apk add --update curl 
+            apk add --update rsync 
+            apk add --update curl
+            apk add --update openssh
+            apk add --update openssh-client 
+            pip3 install --upgrade pip 
+            pip install awscli 
+            aws --version 
+      - run:
+          name: Get backend url
+          command: |
+           export API_URL="http://${BACKEND_IP}:3030"
+           echo "${API_URL}"
+      - run:
+          name: Backend smoke test.
+          command: |
+             if curl "${API_URL}/api/status" | grep "ok"
+             then
+             return 0
+             else
+             return 1
+             fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            echo ${URL} 
+            if curl -s ${URL} | grep "Welcome"
+            then
+             # Change this to 0 after the job fails
+            return 1
+            else
+            return 1
+            fi
+      # Here's where you will add some code to rollback on failure 
+      - destroy-environment
+      - revert-migrations
 
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar
+            apk add --update gzip
+            apk add --update curl 
+            apk add --update rsync 
+            apk add --update curl
+            apk add --update openssh
+            apk add --update openssh-client 
+            pip3 install --upgrade pip 
+            pip install awscli 
+       - run:
+          name: Get old workflow id
+          command: |
+                    Old_Workflow_ID=$(aws cloudformation list-exports \
+                    --query "Exports[?Name=='WorkflowID'].Value" \
+                    --no-paginate \
+                    --output text > ./.circleci/CloudFormation/Old_Workflow_ID.txt)
+                    declare -x Old_Workflow_ID
+                    echo "${Old_Workflow_ID}" | cat
+                    cat .circleci/CloudFormation/Old_Workflow_ID.txt
+                    pwd
+                    ls -la
+                    
+      - run:
+          name: Get old stack
+          command: |
+                    list_old_stack=$(aws cloudformation list-stacks \
+                    --region us-east-1 \
+                    --query 'StackSummaries[].[StackName,StackStatus]' \
+                    --output text | egrep -v 'CREATE_FAILED| CREATE_COMPLETE| UPDATE_COMPLETE| DELETE_FAILED| ROLLBACK_FAILED' \
+                    > ./.circleci/CloudFormation/Old_Stack.txt
+                    declare -x list_old_stack
+                    echo "${list_old_stack}" | cat
+                    cat .circleci/CloudFormation/Old_Stack.txt            
+                    pwd
+                    ls -la          
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name InitialStack \
+            --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --tags project=udapeople
+      - run:
+          name: Get New workflow id
+          command: |
+                    New_Workflow_ID=$(aws cloudformation list-exports \
+                    --query "Exports[?Name=='WorkflowID'].Value" \
+                    --no-paginate \
+                    --output text > ./.circleci/CloudFormation/New_Workflow_ID.txt)
+                    declare -x New_Workflow_ID
+                    echo "${New_Workflow_ID}" | cat
+                    cat .circleci/CloudFormation/New_Workflow_ID.txt
+                    pwd
+                    ls -la             
+      - destroy-environment
+      - revert-migrations
+      
+
+cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+           # Fetch the Old workflow ID
+           export OldWorkflowID=$(aws cloudformation \
+           list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+           --no-paginate --output text)
+           echo OldWorkflowID: "${OldWorkflowID}"
+           echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+           # Fetch the stack names          
+           export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+           --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+           echo Stack names: "${STACKS[@]}"          
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            fi
+            
 workflows:
   default:
     jobs:
       - build-frontend
       - build-backend
-      -  test-frontend:
+      - test-frontend:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
-      - create-infrastructure
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
+
           
      
