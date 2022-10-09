@@ -8,6 +8,7 @@ commands:
         type: string
     steps:
       - run: echo << parameters.id >>
+          id: << pipeline.id >>
       - run:
           name: Destroy environments
           when: on_fail
@@ -151,7 +152,7 @@ jobs:
           command: | 
              cd .circleci/ansible
              echo "" >> inventory.txt
-             echo "$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:
+             echo "$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:       --output text)" >> inventory.txt
              cat inventory.txt
           
       - persist_to_workspace:
@@ -172,5 +173,6 @@ workflows:
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
+      - create-infrastructure
           
      
