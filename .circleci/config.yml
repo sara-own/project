@@ -1,4 +1,4 @@
-version: 2.1
+version: 2.1version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@2.0.3
 commands:
@@ -222,7 +222,6 @@ jobs:
       - destroy_environment
       - revert_migrations
       
-      
   run-migrations:
     docker:
        - image: circleci/node:13.8.0 
@@ -278,12 +277,12 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances \
+            BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}")
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo "API_URL=http://${BACKEND_IP}:3030" >> frontend/.env
              cat frontend/.env
       - run:
           name: Deploy frontend objects
@@ -429,15 +428,13 @@ cleanup:
       - run:
           name: Get old stack workflow id
           command: |
-           # Fetch the Old workflow ID
            export OldWorkflowID=$(aws cloudformation \
            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
            --no-paginate --output text)
            echo OldWorkflowID: "${OldWorkflowID}"
-           echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-           # Fetch the stack names          
+           echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"          
            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-           --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+           --stack-status-filter CREATE_COMPLETE --no-paginate --output text) 
            echo Stack names: "${STACKS[@]}"          
       - run:
           name: Remove old stacks and files
@@ -447,10 +444,9 @@ cleanup:
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-            fi
-            
-workflows:
-   default:
+            fi          
+workflows: 
+ default:
      jobs:
       - build-frontend
       - build-backend
@@ -481,6 +477,3 @@ workflows:
           requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
-
-          
-     
