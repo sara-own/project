@@ -5,23 +5,25 @@ commands:
   destroy_environment:
     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
     parameters:
-      workflow_id:
-         type: string      
+       Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}     
     steps:
     - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" 
-            aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-            aws s3 rm s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >> 
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
+            aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
         
           
   revert_migrations:
    description: Revert the last migration
    parameters:
-     workflow_id:
-        type: string      
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}     
    steps:
     - run:
         name: Revert migrations
@@ -29,13 +31,13 @@ commands:
         command: |
             # Your Memstash or kvdb.io GET URL code goes here
             # Example: Memstash.io
-            SUCCESS=$(curl -H "token:${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
+            SUCCESS=$(curl -H "token:${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_<< parameters.Workflow_ID >>)
             echo $SUCCESS
             if (( $SUCCESS == 1 ));
             then
                 cd ~/project/backend
                 npm install
-                npm run migrations
+                npm run migrations:revert
             fi 
             # Example: kvdb.io
             #SUCCESS=$(curl --insecure  https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_<< parameters.workflow_id >>)
@@ -163,7 +165,7 @@ jobs:
       - run:
           name: create back-end infrastructure 
           command: |
-            aws cloudformation deploy \
+              aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -178,12 +180,12 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
       - run:
           name: Add back-end publicIP created to ansible inventory
-          command: | 
-             cd .circleci/ansible
-              aws ec2 describe-instances \
+          command: |
+              backend_ip=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text >> inventory.txt
+              --output text)
+              echo $backend_ip >> .circleci/ansible/inventory.txt
               cat inventory.txt
       - persist_to_workspace:
           root: ~/
