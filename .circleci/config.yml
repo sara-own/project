@@ -156,7 +156,6 @@ jobs:
           command: |            
               yum -y install tar 
               yum -y install gzip
-              npm install
               apk add --update ansible
               pip install --upgrade pip 
               pip install awscli 
