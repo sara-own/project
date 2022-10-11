@@ -10,15 +10,6 @@
     path: ~/backend-app
     state: directory
     
-- name: "Move backend files to web server"
-  become: true
-  copy:
-    src: /root/project/backend.tar.gz
-    dest: "~/"
-    owner: ubuntu
-    group: ubuntu
-    mode: 0777
-    
 - name: "Unarchive backend files"
   unarchive:
     src: artifact.tar.gz
