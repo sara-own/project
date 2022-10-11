@@ -154,11 +154,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |            
-                    yum -y install sudo
-                    yum -y install tar
-                    yum -y install gzip
-                    yum install -y curl
-                    yum -y update upgrade
+                     install sudo
+                     install tar
+                     install gzip
+                     install -y curl
+                     update upgrade
       - run:
           name: create back-end infrastructure 
           command: |
