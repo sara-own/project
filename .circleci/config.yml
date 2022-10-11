@@ -154,11 +154,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |            
-                     install sudo
-                     install tar
-                     install gzip
-                     install -y curl
-                     update upgrade
+              tar install
+              npm install
+              gzip install
+              awscli install
+
       - run:
           name: create back-end infrastructure 
           command: |
@@ -166,7 +166,9 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"       
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" 
+              --aws 
+      
       - run:
           name: create front-end infrastructure 
           command: |
