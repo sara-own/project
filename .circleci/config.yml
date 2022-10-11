@@ -420,7 +420,7 @@ jobs:
       - revert_migrations
       
 
-cleanup:
+  cleanup:
     docker:
       - image: amazon/aws-cli
     steps:
@@ -446,7 +446,7 @@ cleanup:
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi          
 workflows: 
- default:
+ base:
      jobs:
       - build-frontend
       - build-backend
