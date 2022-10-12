@@ -222,8 +222,9 @@ jobs:
             cd backend
             npm install
             npm config set fund false
-            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
             npm update path-parse --depth 10
             npm update path-parse --depth 3
             npm audit fix
