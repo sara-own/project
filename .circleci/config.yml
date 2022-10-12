@@ -225,6 +225,8 @@ jobs:
             npm config set fund false
             npm audit fix
             npm audit fix
+            npm audit fix
+            npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
