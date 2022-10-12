@@ -221,19 +221,8 @@ jobs:
           command: |
             cd backend
             npm install
-            npm update
             npm config set fund false
-            npm audit fix
-            npm audit fix
-            npm audit fix
-            npm audit fix
-            npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
-            npm update path-parse --depth 10
-            npm update path-parse --depth 3
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration status to kvdb.io
