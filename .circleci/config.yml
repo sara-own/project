@@ -1,5 +1,4 @@
 version: 2.1
-
 commands:
   install_awscli:
     description: Install AWS CLI v2
@@ -191,7 +190,6 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-
       - destroy-environment      
 
   configure-infrastructure:
@@ -266,8 +264,7 @@ jobs:
       
       - destroy-environment
       - revert-migrations
-           
-                    
+                             
   deploy-backend:
     docker:
       - image: cimg/base:stable
@@ -293,7 +290,6 @@ jobs:
             cd backend
             npm run build
             tar -czf artifact.tar.gz dist/* package*
-
             cd .. 
             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files 
       - run:
