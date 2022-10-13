@@ -222,10 +222,7 @@ jobs:
             cd backend
             npm install
             npm config set fund false
-            npm audit --audit-level=critical
-            npm audit fix --force
-            npm audit fix --package-lock-only
-            npm audit fix --only=prod
+            npm config set audit false
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration status to kvdb.io
