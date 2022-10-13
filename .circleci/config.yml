@@ -286,7 +286,7 @@ jobs:
             npm config set fund false
             npm config set audit false
             tar -czf artifact.tar.gz dist/* package*
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy           
+            sudo cp backend/artifact.tar.gz .circleci/ansible/roles/deploy           
       - run:
           name: Deploy backend
           command: |
