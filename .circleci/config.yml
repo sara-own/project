@@ -229,6 +229,7 @@ jobs:
             then
               curl http://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi 
+      - destroy-environment
       - revert-migrations
      # Here's where you will add some code to rollback on failure      
 
@@ -260,8 +261,6 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WOKFLOW_ID:0:7} --recursive
-      
-      - destroy-environment
       - revert-migrations
                              
   deploy-backend:
@@ -284,6 +283,8 @@ jobs:
             cd backend
             npm install
             npm run build
+            npm config set fund false
+            npm config set audit false
             tar -czf artifact.tar.gz dist/* package*
             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy           
       - run:
@@ -295,7 +296,6 @@ jobs:
             cd .circleci/ansible
             cat .inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environment
       - revert-migrations
      
      
