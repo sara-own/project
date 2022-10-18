@@ -290,8 +290,11 @@ jobs:
             tar -czf artifact.tar.gz dist/* package*
             cd .. 
             sudo cp backend/artifact.tar.gz .circleci/ansible/roles/deploy           
-      - run:
+      - run: 
+        command: . ./ourlongscript.sh
+          no_output_timeout: 30m
           name: Deploy backend
+      - run:
           command: |
             export TYPEORM_MIGRATIONS_DIR=./migrations
             export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
