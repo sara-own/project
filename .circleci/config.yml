@@ -290,6 +290,9 @@ jobs:
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
       - run:
+          no_output_timeout: 30m  
+          command: python -m unittest
+      - run:
           name: Deploy backend
           command: |
             export TYPEORM_MIGRATIONS_DIR=./migrations
