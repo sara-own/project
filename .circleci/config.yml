@@ -290,10 +290,6 @@ jobs:
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
       - run:
-          command: |
-            . ./ourlongscript.sh
-            no_output_timeout: 30m
-      - run:
           name: Deploy backend
           command: |
             export TYPEORM_MIGRATIONS_DIR=./migrations
