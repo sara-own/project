@@ -1,9 +1,4 @@
----
-- name: "install apt packages."
-  become: yes
-  apt:
-    update_cache: yes
-    
+---    
 - name: "Creates backend app directory"
   file:
     path: ~/backend-app
