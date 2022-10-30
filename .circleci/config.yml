@@ -268,7 +268,7 @@ jobs:
                              
   deploy-backend:
     docker:
-      - image: circleci/python3.7-alpine3.11
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - install_awscli
