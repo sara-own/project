@@ -268,7 +268,7 @@ jobs:
                              
   deploy-backend:
     docker:
-      - image: cimg/python:3.10
+      - image: python3.7-alpine3.11
     steps:
       - checkout
       - install_awscli
@@ -291,6 +291,9 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml 
+            export PYTHONUNBUFFERED=1
+            python -m unittest
+            no_output_timeout: 30m
       - revert-migrations
   smoke-test:
     docker:
