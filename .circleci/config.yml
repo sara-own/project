@@ -208,7 +208,7 @@ jobs:
           command: |
             cd .circleci/ansible
             cat inventory.txt 
-            ansible-playbook -i .inventory.txt configure-server.yml
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
       - revert-migrations
 
@@ -290,6 +290,7 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             cat inventory.txt
+            ssh -i "udacity.pem" ubuntu@ec2-18-219-166-88.us-east-2.compute.amazonaws.com
             ansible-playbook -i inventory.txt deploy-backend.yml 
 
       - revert-migrations
@@ -340,7 +341,7 @@ jobs:
       # Here's where you will add some code to rollback on failure #
       - destroy-environment
       - revert-migrations
-
+#
 #  cloudfront-update:
 #    docker:
 #      - image: amazon/aws-cli
