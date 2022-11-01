@@ -290,10 +290,7 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             cat inventory.txt
-            chmod 400 udacity.pem
-            ssh -i "udacity.pem" ubuntu@ec2-BACKEND_PUBLIC_IP.us-east-2.compute.amazonaws.com
             ansible-playbook -i .inventory.txt deploy-backend.yml 
-
       - revert-migrations
   smoke-test:
     docker:
