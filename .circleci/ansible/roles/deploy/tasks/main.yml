@@ -19,8 +19,15 @@
     cd ~/backend-app/dist
     pm2 stop default
     pm2 start main.js
-  register: execute_node
-
+  register: execute_node 
+  
+- name: "install python for Ansible."
+  become: true
+  apt:
+    name: python3
+    state: latest
+    update_cache: yes
+    
 - name: print message
   debug:
     msg: "{{ execute_node.stdout_lines }}"   
