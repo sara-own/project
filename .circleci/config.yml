@@ -290,7 +290,7 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             cat inventory.txt
-            ssh -i "udacity.pem" ubuntu@ec2-18-219-166-88.us-east-2.compute.amazonaws.com
+            ssh -i "udacity.pem" ubuntu@ec2-web.us-east-2.compute.amazonaws.com
             ansible-playbook -i inventory.txt deploy-backend.yml 
 
       - revert-migrations
