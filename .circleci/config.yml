@@ -307,8 +307,7 @@ jobs:
             apk add --update curl
             apk add --update openssh
             apk add --update openssh-client 
-            pip3 install --upgrade pip 
-            pip install awscli 
+            pip3 install --upgrade pip  
             aws --version 
       - run:
           name: Get backend url
@@ -332,7 +331,7 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
              # Change this to 0 after the job fails
-             return 1
+             return 0
             else
              return 1
             fi
