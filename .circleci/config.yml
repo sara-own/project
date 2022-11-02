@@ -315,9 +315,8 @@ jobs:
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WOKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
-            API_URL="http://${BACKEND_PUBLIC_IP}:3030"
-            echo ${API_URL}
-            if curl -s ${API_URL}/api/status | grep "ok"
+            echo ${BACKEND_PUBLIC_IP}
+            if curl http://${BACKEND_PUBLIC_IP}:3030/api/status | grep "ok"
             then
              return 0
             else
