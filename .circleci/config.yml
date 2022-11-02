@@ -309,9 +309,9 @@ jobs:
             apk add --update openssh-client 
             pip3 install --upgrade pip  
       - run:
-          name: Get backend url
+          name: backend smoke test 
           command: |
-           export API_URL="http://${BACKEND_PUBLIC_IP}:3030/api/status"
+           API_URL="http://${BACKEND_PUBLIC_IP}:3030/api/status"
            echo "${API_URL}"
            if curl -s ${API_URL} | grep "ok"
            then
