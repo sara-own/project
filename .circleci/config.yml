@@ -311,14 +311,18 @@ jobs:
       - run:
           name: backend smoke test 
           command: |
-           API_URL="http://${BACKEND_PUBLIC_IP}:3030/api/status"
-           echo "${API_URL}"
-           if curl -s ${API_URL} | grep "ok"
-           then
+            export BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WOKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
              return 0
-           else
+            else
              return 1
-           fi
+            fi
       - run:
           name: Frontend smoke test.
           command: |
