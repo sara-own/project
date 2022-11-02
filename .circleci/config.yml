@@ -308,7 +308,6 @@ jobs:
             apk add --update openssh
             apk add --update openssh-client 
             pip3 install --upgrade pip  
-            aws --version 
       - run:
           name: Get backend url
           command: |
