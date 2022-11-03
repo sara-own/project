@@ -208,8 +208,9 @@ jobs:
           command: |
             cd .circleci/ansible
             cat inventory.txt
-            sudo chmod 744 /home/circleci/project/.circleci/ansible/inventory.txt 
-            ansible-playbook -i inventory.txt configure-server.yml
+            sudo chmod 744 /home/circleci/project/.circleci/ansible/inventory.txt
+            ansible all --list-hosts 
+            ansible-playbook -i /home/circleci/project/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment
       - revert-migrations
 
@@ -292,7 +293,8 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             sudo chmod 744 /home/circleci/project/.circleci/ansible/inventory.txt 
-            ansible-playbook -i inventory.txt deploy-backend.yml 
+            ansible all --list-hosts
+            ansible-playbook -i /home/circleci/project/.circleci/ansible/inventory.txt deploy-backend.yml 
       - revert-migrations
   smoke-test:
     docker:
