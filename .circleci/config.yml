@@ -210,7 +210,7 @@ jobs:
             cat inventory.txt
             sudo chmod 744 /home/circleci/project/.circleci/ansible/inventory.txt
             ansible all --list-hosts 
-            ansible-playbook -i /home/circleci/project/.circleci/ansible/inventory.txt configure-server.yml
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
       - revert-migrations
 
@@ -292,15 +292,14 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             cat inventory.txt
-            sudo chmod 744 /home/circleci/project/.circleci/ansible/inventory.txt 
-            ansible all --list-hosts
-            ansible-playbook -i /home/circleci/project/.circleci/ansible/inventory.txt deploy-backend.yml 
+            ansible-playbook -i inventory.txt deploy-backend.yml 
       - revert-migrations
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - install_awscli
       - run:
           name: Install dependencies
           command: |
