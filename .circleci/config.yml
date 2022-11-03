@@ -206,7 +206,8 @@ jobs:
           command: |
             cd .circleci/ansible
             cat inventory.txt
-            fingerprints: ["22:fe:c8:f4:d5:bd:0c:f1:b1:17:a3:bf:d6:1c:69:82"]
+            add_ssh_keys: 
+              fingerprints: ["22:fe:c8:f4:d5:bd:0c:f1:b1:17:a3:bf:d6:1c:69:82"]
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
       - revert-migrations
