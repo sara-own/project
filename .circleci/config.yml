@@ -198,7 +198,9 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
-      - install_ansible   
+      - install_ansible 
+      - add_ssh_keys: 
+              fingerprints: ["22:fe:c8:f4:d5:bd:0c:f1:b1:17:a3:bf:d6:1c:69:82"]  
       - attach_workspace:
           at: ~/
       - run:
@@ -206,9 +208,7 @@ jobs:
           command: |
             cd .circleci/ansible
             cat inventory.txt
-            add_ssh_keys: 
-              fingerprints: ["22:fe:c8:f4:d5:bd:0c:f1:b1:17:a3:bf:d6:1c:69:82"]
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i .inventory.txt configure-server.yml
       - destroy-environment
       - revert-migrations
 
@@ -291,7 +291,7 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ansible-playbook -i .inventory.txt deploy-backend.yml
       - destroy-environment       
       - revert-migrations
 
