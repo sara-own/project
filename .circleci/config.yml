@@ -300,7 +300,6 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - install_awscli
       - run:
           name: Install dependencies
           command: |
@@ -311,7 +310,8 @@ jobs:
             apk add --update curl
             apk add --update openssh
             apk add --update openssh-client 
-            pip3 install --upgrade pip  
+            pip3 install --upgrade pip 
+            aws cli install 
       - run:
           name: backend smoke test 
           command: |
