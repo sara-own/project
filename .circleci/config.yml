@@ -293,7 +293,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/base:stable
     steps:
       - checkout
       - run:
