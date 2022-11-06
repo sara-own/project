@@ -307,7 +307,7 @@ jobs:
             apk add --update openssh
             apk add --update openssh-client 
             pip3 install --upgrade pip 
-            aws cli install 
+            install_awscli
       - run:
           name: backend smoke test 
           command: |
