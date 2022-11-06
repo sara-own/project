@@ -297,7 +297,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: amazon/aws-cli
           command: |
             apk add --update tar
             apk add --update gzip
