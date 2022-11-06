@@ -297,7 +297,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: python:3.7
+          name: python:3.7-alpine3.11
           command: |
             apk add --update tar
             apk add --update gzip
