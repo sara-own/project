@@ -297,7 +297,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: amazon/aws-cli
+          name: python:3.7
           command: |
             apk add --update tar
             apk add --update gzip
