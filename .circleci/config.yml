@@ -107,7 +107,7 @@ jobs:
           name: front-end unit test
           command: |
             cd frontend
-            npm install
+            sudo npm install npm@latest -g
             npm test
   test-backend:
     docker:
@@ -120,7 +120,7 @@ jobs:
           name: Back-end unit test
           command: |
              cd backend
-             npm install
+             sudo npm install npm@latest -g
              npm test
             
   scan-frontend:
@@ -134,7 +134,7 @@ jobs:
           name: front-end scan
           command: |
             cd frontend
-            npm install --no-audit
+            sudo npm install npm@latest -g
 
   scan-backend:
     docker:
@@ -147,7 +147,7 @@ jobs:
           name: Back-end scan
           command: |
              cd backend
-             npm install --no-audit
+             sudo npm install npm@latest -g
   deploy-infrastructure:
     docker:
       - image: cimg/base:stable
@@ -218,7 +218,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm install
+            sudo npm install npm@latest -g
             npm config set fund false
             npm config set audit false
             npm run migrations > migrations_dump.txt
