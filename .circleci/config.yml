@@ -218,7 +218,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            sudo npm install npm@latest -g
+            npm install
             npm config set fund false
             npm config set audit false
             npm run migrations > migrations_dump.txt
