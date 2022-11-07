@@ -35,8 +35,8 @@ Resources:
           Value: !Sub backend-${ID}
           
   InstanceEIP:
-     type: AWS::EC2::EIP
-     properties:
+     Type: AWS::EC2::EIP
+     Properties:
         Domain: vpc
         InstanceId: !Ref EC2Instance
    
