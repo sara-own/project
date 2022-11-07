@@ -295,12 +295,12 @@ jobs:
     docker:
       - image: cimg/node:13.8.0
     steps:
+      - checkout
+      - install_awscli 
       - attach_workspace:
           at: ~/ 
       - restore_cache:
           keys: [backend-deps]
-      - checkout
-      - install_awscli 
       - run:
           name: backend smoke test 
           command: |
