@@ -298,14 +298,7 @@ jobs:
       - checkout
       - run:
           name: python:3.7-alpine3.11
-          command: |
-           update tar
-           update gzip
-           update curl 
-           update rsync 
-           update curl
-           update openssh
-           update openssh-client 
+          command: | 
            pip3 install --upgrade pip 
            pip install awscli
       - run:
