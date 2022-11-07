@@ -299,15 +299,15 @@ jobs:
       - run:
           name: python:3.7-alpine3.11
           command: |
-            apk add --update tar
-            apk add --update gzip
-            apk add --update curl 
-            apk add --update rsync 
-            apk add --update curl
-            apk add --update openssh
-            apk add --update openssh-client 
-            pip3 install --upgrade pip 
-            pip install awscli
+           update tar
+           update gzip
+           update curl 
+           update rsync 
+           update curl
+           update openssh
+           update openssh-client 
+           pip3 install --upgrade pip 
+           pip install awscli
       - run:
           name: backend smoke test 
           command: |
