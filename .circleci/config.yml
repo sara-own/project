@@ -297,11 +297,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install dependencies
-          command: | 
-           pip3 install --upgrade pip 
-           pip install awscli
-      - run:
           name: backend smoke test 
           command: |
             export BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
