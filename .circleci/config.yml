@@ -297,7 +297,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: python:3.7-alpine3.11
+          name: install dependencies
           command: | 
            pip3 install --upgrade pip 
            pip install awscli
