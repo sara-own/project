@@ -297,6 +297,7 @@ jobs:
     steps:
       - checkout
       - install_awscli 
+      - install_nodejs
       - attach_workspace:
           at: ~/ 
       - restore_cache:
