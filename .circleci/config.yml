@@ -343,18 +343,8 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update tar
-            apk add --update gzip
-            apk add --update curl 
-            apk add --update rsync 
-            apk add --update curl
-            apk add --update openssh
-            apk add --update openssh-client 
-            pip3 install --upgrade pip 
-            pip install awscli      
+      - install_awscli 
+      - install_nodejs      
       - run:
           name: Update cloudfront distribution
           command: |
