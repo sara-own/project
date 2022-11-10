@@ -340,10 +340,19 @@ jobs:
 
   cloudfront-update:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:stable
     steps:
-      - checkout 
-      - install_nodejs      
+      - checkout
+      - install_awscli 
+      - install_nodejs 
+      - run:
+          name: save old workflowID to KVdb
+          command: |
+            export OLD_WORKFLOW_ID=$(aws cloudformation \
+                      list-exports --query "Exports[?Name==\'WorkflowID\']-Value" \
+                      --no-paginate --output text)
+            echo "Old Workflow ID: $OLD_WORKFLOW_ID"
+            curl https://kvdb.io/${KVDB_BUCKET}/WorkflowID -d "${OLD_WORKFLOW_ID}"     
       - run:
           name: Update cloudfront distribution
           command: |
