@@ -353,6 +353,7 @@ jobs:
                       --no-paginate --output text)
             echo $OLD_WORKFLOW_ID >> ~/OLD_WORKFLOW_ID.txt
             cat ~/OLD_WORKFLOW_ID.txt
+            echo "Old Workflow ID: $OLD_WORKFLOW_ID"
             curl https://kvdb.io/${KVDB_BUCKET}/WorkflowID -d "${OLD_WORKFLOW_ID}"     
       - run:
           name: Update cloudfront distribution
