@@ -333,11 +333,12 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
              # Change this to 0 after the job fails
-             exit 0
+             exit 1
             else
              exit 1
             fi
-
+      - destroy-environment       
+      - revert-migrations
   cloudfront-update:
     docker:
       - image: cimg/base:stable
